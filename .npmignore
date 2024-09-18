@@ -1,0 +1,17 @@
+.vscode
+node_modules
+src
+
+.gitignore
+rollup.config.js
+tsconfig.json
+.editorconfig
+
+.dev.env
+.env
+
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
