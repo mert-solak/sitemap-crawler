@@ -89,7 +89,7 @@ const visitLink = async (
     }
 
     urlsVisited.push(url);
-    const response = await fetch(path.join(baseURL, url), { method: 'GET' });
+    const response = await fetch(baseURL + url, { method: 'GET', redirect: 'manual' });
     const htmlDocument = await response.text();
     const newLinks = parseHtml(htmlDocument, baseURL);
     concatedLinks = links
@@ -101,13 +101,7 @@ const visitLink = async (
     console.log('Current URL = ', url);
     console.log('Total URL Count = ', concatedLinks.length);
 
-    const newSitemap = await addToSiteMap(
-      htmlDocument,
-      response,
-      sitemap,
-      path.join(baseURL, url),
-      dateCallback,
-    );
+    const newSitemap = await addToSiteMap(htmlDocument, response, sitemap, baseURL + url, dateCallback);
     return visitLink(nextLink, baseURL, concatedLinks, urlsVisited, newSitemap, categories, dateCallback);
   } catch (error) {
     concatedLinks = links;
@@ -127,12 +121,15 @@ const createFiles = (sitemaps: CategorisedSitemap[], baseURL: string, outputPath
       fs.mkdirSync(path.join(outputPath, sitemap.path));
     }
     fs.writeFileSync(path.join(outputPath, sitemap.path, `${sitemap.name}.xml`), sitemap.data);
+    if (sitemap.name === mainXmlFile.replace('.xml', '')) {
+      return;
+    }
     const mainXml = fs.readFileSync(path.join(outputPath, mainXmlFile));
     fs.writeFileSync(
       path.join(outputPath, mainXmlFile),
       `${mainXml}
   <sitemap>
-    <loc>${path.join(baseURL, sitemap.path, `${sitemap.name}.xml`)}</loc>
+    <loc>${baseURL}/${path.join(sitemap.path, sitemap.name)}.xml</loc>
     <lastmod>2024-09-06</lastmod>
   </sitemap>`,
     );
@@ -147,7 +144,7 @@ const createCategorySitemaps = (sitemap: string, categories?: Category[]) => {
     return [
       {
         name: mainXmlFile.replace('.xml', ''),
-        path: '/',
+        path: '',
         data: sitemap,
       },
     ];
@@ -166,6 +163,13 @@ const createCategorySitemaps = (sitemap: string, categories?: Category[]) => {
     const lastmod = splitUrl.match(
       /(?<=<lastmod>)[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\/\:]+(?=<\/lastmod>)/,
     )?.[0];
+
+    if (url === undefined || url === null) {
+      return;
+    }
+    if (lastmod === undefined || lastmod === null) {
+      return;
+    }
 
     categories.forEach((category) => {
       if (category.include && !new RegExp(category.include).test(url)) {

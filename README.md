@@ -1,6 +1,6 @@
-## Custom Event
+## Sitemap Crawler
 
-Developed to use CustomEvents easily.
+Developed to create sitemap easily.
 
 ![npm](https://img.shields.io/npm/v/@mertsolak/sitemap-crawler)
 ![license](https://img.shields.io/npm/l/@mertsolak/sitemap-crawler)
