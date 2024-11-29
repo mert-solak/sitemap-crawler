@@ -42,7 +42,7 @@ const addToSiteMap = async (
   fullPath: string,
   dateCallback?: (urlParam: string) => Promise<string>,
 ): Promise<string> => {
-  if (htmlDocument.includes('content="noindex,nofollow"') || !response.status.toString().startsWith('2')) {
+  if (htmlDocument.includes('content="noindex') || !response.status.toString().startsWith('2')) {
     return sitemap;
   }
 
